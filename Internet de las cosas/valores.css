@@ -1,0 +1,25 @@
+/* Estilo del contenedor principal */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #f0f8ff, #e6e6fa); /* Fondo con degradado suave */
+    border-radius: 12px;
+    border: 2px solid #dcdcdc; /* Borde sutil para darle más definición */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+    overflow: hidden;
+}
+
+/* Estilo del encabezado */
+header {
+    text-align: center;
+    margin-bottom: 30px; /* Mayor espacio para separar del contenido */
+}
+
+header h1 {
+    font-family: 'Museo700', sans-serif;
+    font-size: 28px; /* Tamaño de fuente más grande */
+    color: #333;
+    border-bottom: 2px solid #000000; /* Línea debajo del título para mayor énfasis */
+    padding-bottom: 10px;
+}

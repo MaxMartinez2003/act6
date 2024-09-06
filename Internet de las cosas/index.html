@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://use.fontawesome.com/releases/v5.15.2/js/all.js" data-auto-a11y="true"></script>
+
+    <!-- Particle API -->
+    <script src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
+
+    <!-- MathJax -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* Estilos CSS básicos */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #ff0000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #a3f3ff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #000000;
+        }
+
+        /* Diseño personalizado para el slider */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 15px;
+            background: linear-gradient(90deg, #007bff 0%, #28a745 100%);
+            border-radius: 10px;
+            outline: none;
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .slider:hover {
+            background: linear-gradient(90deg, #0056b3 0%, #218838 100%);
+        }
+
+        /* Estilo del pulgar del slider */
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #fff;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+
+        output {
+            font-size: 2em;
+            color: #333;
+            display: block;
+            margin-top: 10px;
+        }
+
+        #TM {
+            display: block;
+            margin-top: 20px;
+            font-size: 2em;
+            color: #007bff;
+        }
+
+        /* Estilo del resultado devuelto por Particle */
+        #particleResult {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Control de Valores de TMS</h1>
+        
+        <!-- Slider input -->
+        <input type="range" min="5" max="20" step="1" value="5" class="slider" id="Ktms">
+        <output for="Ktms" id="Kvaluetms">5</output>
+ 
+        <!-- MathJax formula -->
+        <span id="TM">\[{TMS} = 5\]</span>
+
+        <!-- Div para mostrar el resultado de Particle -->
+        <div id="particleResult">Resultado de Particle: <span id="resultValue">Esperando...</span></div>
+    </div>
+
+    <script>
+        var particle = new Particle();
+        var token;
+
+        // Función para iniciar sesión en Particle
+        particle.login({username: 'rjimenez@ucol.mx', password: 'K7RM839C2'}).then(
+            function(data) {
+                token = data.body.access_token;
+                console.log('Login successful! Token:', token);
+            },
+            function (err) {
+                console.log('Could not log in.', err);
+            }
+        );
+
+        // Función para actualizar el valor del slider en el elemento output y enviar a Particle
+        function outputUpdate(vol) {
+            // Actualiza el valor del output
+            document.querySelector('#Kvaluetms').value = vol;
+            // Actualiza la fórmula de MathJax con el nuevo valor
+            document.querySelector('#TM').innerHTML = `\\[{TMS} = ${vol}\\]`;
+            MathJax.typeset(); // Renderiza de nuevo la fórmula con el nuevo valor
+
+            // Enviar valor a Particle
+            if (token) {
+                var deviceId = '240046000e47313037363132';
+                particle.callFunction({ 
+                    deviceId: deviceId, 
+                    name: 'TMS_2', 
+                    argument: vol.toString(), 
+                    auth: token 
+                }).then(function(data) {
+                    console.log('Function called successfully:', data);
+                    // Mostrar el resultado devuelto por Particle en el HTML
+                    document.getElementById('resultValue').textContent = data.body.return_value;
+                }, function(err) {
+                    console.error('An error occurred:', err);
+                    document.getElementById('resultValue').textContent = 'Error al obtener resultado';
+                });
+            }
+        }
+
+        // Escuchar cambios en el slider
+        var slider = document.getElementById('Ktms');
+        slider.addEventListener('input', function() {
+            outputUpdate(slider.value);
+        });
+
+    </script>
+</body>
+</html>
